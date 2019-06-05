@@ -18,11 +18,15 @@ def char_maps(text: str):
         represented by it. The reverse of the above map.
 
     """
-    # TODO: Create two maps as described in the docstring above.
     # It's best if you also sort the chars before assigning indices, so that
     # they're in lexical order.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    unique_chars = list(set(text))
+    unique_chars.sort()
+
+    idx_to_char = {idx: character for idx, character in enumerate(unique_chars)}
+    char_to_idx = {character: idx for idx, character in idx_to_char.items()}
+
     # ========================
     return char_to_idx, idx_to_char
 
@@ -36,9 +40,10 @@ def remove_chars(text: str, chars_to_remove):
         - text_clean: the text after removing the chars.
         - n_removed: Number of chars removed.
     """
-    # TODO: Implement according to the docstring.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    remove_pattern = '[' + ''.join([re.escape(character) for character in chars_to_remove]) + ']'
+
+    text_clean, n_removed = re.subn(remove_pattern, '', text)
     # ========================
     return text_clean, n_removed
 
@@ -56,9 +61,12 @@ def chars_to_onehot(text: str, char_to_idx: dict) -> Tensor:
     and D is the number of unique chars in the sequence. The dtype of the
     returned tensor will be torch.int8.
     """
-    # TODO: Implement the embedding.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    char_indices = [char_to_idx[character] for character in text]
+
+    result = torch.zeros(len(text), len(char_to_idx), dtype=torch.int8)
+    result[range(len(text)), char_indices] = 1
+
     # ========================
     return result
 
@@ -73,9 +81,8 @@ def onehot_to_chars(embedded_text: Tensor, idx_to_char: dict) -> str:
     :return: A string containing the text sequence represented by the
     embedding.
     """
-    # TODO: Implement the reverse-embedding.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    result = ''.join([idx_to_char[idx.item()] for idx in (embedded_text == 1).nonzero()[:, 1]])
     # ========================
     return result
 
@@ -104,7 +111,22 @@ def chars_to_labelled_samples(text: str, char_to_idx: dict, seq_len: int,
     # 3. Create the labels tensor in a similar way and convert to indices.
     # Note that no explicit loops are required to implement this function.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    embedded_text = chars_to_onehot(text, char_to_idx).to(device)
+
+    samples_split = embedded_text[:-1, :].split(seq_len)
+    if samples_split[-1].shape[0] != seq_len:
+        samples_split = samples_split[:-1]
+
+    samples = torch.stack(samples_split)
+
+    text_labels = (embedded_text == 1).nonzero()[:, 1]
+
+    labels_split = text_labels[1:].split(seq_len)
+    if labels_split[-1].shape[0] != seq_len:
+        labels_split = labels_split[:-1]
+
+    labels = torch.stack(labels_split)
+
     # ========================
     return samples, labels
 
@@ -166,6 +188,7 @@ class MultilayerGRU(nn.Module):
     """
     Represents a multi-layer GRU (gated recurrent unit) model.
     """
+
     def __init__(self, in_dim, h_dim, out_dim, n_layers, dropout=0):
         """
         :param in_dim: Number of input dimensions (at each timestep).
@@ -200,10 +223,26 @@ class MultilayerGRU(nn.Module):
         #     then call self.register_parameter() on them. Also make
         #     sure to initialize them. See functions in torch.nn.init.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        sequence = []
+        self.GRU_layers = []
+
+        prev_dim = in_dim
+        for _ in range(n_layers):
+            gru_layer = GRUBlock(prev_dim, h_dim)
+            sequence.append(gru_layer)
+            if dropout != 0:
+                self.sequence.append(nn.Dropout(dropout))
+
+            self.GRU_layers.append(gru_layer)
+
+            prev_dim = h_dim
+
+        sequence.append(nn.Linear(prev_dim, out_dim))
+        self.sequence = nn.Sequential(*sequence)
+
         # ========================
 
-    def forward(self, input: Tensor, hidden_state: Tensor=None):
+    def forward(self, input: Tensor, hidden_state: Tensor = None):
         """
         :param input: Batch of sequences. Shape should be (B, S, I) where B is
         the batch size, S is the length of each sequence and I is the
@@ -235,6 +274,73 @@ class MultilayerGRU(nn.Module):
         # Tip: You can use torch.stack() to combine multiple tensors into a
         # single tensor in a differentiable manner.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        layer_outputs = []
+
+        for t in range(seq_len):
+            for layer_state, layer in zip(layer_states, self.GRU_layers):
+                layer.set_hidden_state(layer_state)
+
+            layer_outputs.append(self.sequence(input[:,t,:]))
+            layer_states = [layer.pop_hidden_state() for layer in self.GRU_layers]
+
+        layer_output = torch.stack(layer_outputs, dim=1)
+        hidden_state = torch.stack(layer_states, dim=1)
+
+
         # ========================
         return layer_output, hidden_state
+
+
+class GRUBlock(nn.Module):
+    """
+    as single layer in the multilayer GRU
+    """
+
+    def __init__(self, in_dim, out_dim):
+        super().__init__()
+
+        self.in_dim = in_dim
+        self.out_dim = out_dim
+
+        self.update_gate_in = nn.Linear(in_dim, out_dim)
+        self.update_gate_hidden = nn.Linear(out_dim, out_dim, bias=False)
+        self.update_gate_sigmoid = nn.Sigmoid()
+
+        self.reset_gate_input = nn.Linear(in_dim, out_dim)
+        self.reset_gate_hidden = nn.Linear(out_dim, out_dim, bias=False)
+        self.reset_gate_sigmoid = nn.Sigmoid()
+
+        self.hidden_candidate_in = nn.Linear(in_dim, out_dim)
+        self.hidden_candidate_hidden = nn.Linear(out_dim, out_dim, bias=False)
+        self.hidden_candidate_tanh = nn.Tanh()
+
+        self._hidden = None
+
+    def update_gate(self, input: Tensor, hidden_state: Tensor):
+        return self.update_gate_sigmoid(self.update_gate_in(input) + self.update_gate_hidden(hidden_state))
+
+    def reset_gate(self, input: Tensor, hidden_state: Tensor):
+        return self.reset_gate_sigmoid(self.reset_gate_input(input) + self.reset_gate_hidden(hidden_state))
+
+    def hidden_candidate(self, input: Tensor, hidden_state: Tensor, reset_val):
+        return self.hidden_candidate_tanh(
+            self.hidden_candidate_in(input) + self.hidden_candidate_hidden(reset_val * hidden_state))
+
+    def calc_hidden_state(self, hidden_state: Tensor, hidden_candidate: Tensor, update_val):
+        return update_val * hidden_state + (1 - update_val) * hidden_candidate
+
+    def set_hidden_state(self, hidden_state: Tensor = None):
+        self._hidden = hidden_state
+
+    def pop_hidden_state(self):
+        hidden_state = self._hidden
+        self._hidden = None
+        return hidden_state
+
+    def forward(self, input: Tensor):
+        z = self.update_gate(input, self._hidden)
+        r = self.reset_gate(input, self._hidden)
+        g = self.hidden_candidate(input, self._hidden, r)
+
+        self._hidden = self.calc_hidden_state(self._hidden, g, z)
+        return self._hidden
