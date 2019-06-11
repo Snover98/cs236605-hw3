@@ -142,7 +142,23 @@ def hot_softmax(y, dim=0, temperature=1.0):
     """
     # TODO: Implement based on the above.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+
+    exponent = torch.exp(y/temperature)
+
+    result = exponent / torch.sum(exponent, dim=dim)
+
+    result[result != result] = 1.0
+
+    if torch.sum(result) <= 0:
+        result[torch.argmax(exponent)] = 1.0
+        # print('y!')
+        # print(y)
+        # print('exponent!')
+        # print(exponent)
+        # print('result!')
+        # print(result)
+        # print('sum!')
+        # print(torch.sum(exponent, dim=dim))
     # ========================
     return result
 
@@ -178,7 +194,26 @@ def generate_from_model(model, start_sequence, n_chars, char_maps, T):
     # necessary for this. Best to disable tracking for speed.
     # See torch.no_grad().
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    with torch.no_grad():
+        cur_seq = chars_to_onehot(start_sequence, char_to_idx).to(device)
+        cur_seq = cur_seq.view(1, *cur_seq.shape)
+
+        pred_sequence, hidden_state = model(cur_seq.to(torch.float))
+        pred_sequence = torch.squeeze(pred_sequence)
+        if len(pred_sequence.shape) > 1:
+            pred_sequence = pred_sequence[-1]
+        pred_probs = hot_softmax(pred_sequence, dim=0, temperature=T)
+
+        for _ in range(n_chars-len(start_sequence)):
+            sampled_char = idx_to_char[torch.multinomial(pred_probs, 1).item()]
+            out_text += sampled_char
+
+            prev_char = chars_to_onehot(sampled_char, char_to_idx).to(device)
+            prev_char = prev_char.view(1, *prev_char.shape)
+
+            pred_sequence, hidden_state = model(prev_char.to(torch.float), hidden_state)
+
+            pred_probs = hot_softmax(torch.squeeze(pred_sequence), dim=0, temperature=T)
     # ========================
 
     return out_text
@@ -285,8 +320,6 @@ class MultilayerGRU(nn.Module):
 
         layer_output = torch.stack(layer_outputs, dim=1)
         hidden_state = torch.stack(layer_states, dim=1)
-
-
         # ========================
         return layer_output, hidden_state
 
@@ -302,16 +335,16 @@ class GRUBlock(nn.Module):
         self.in_dim = in_dim
         self.out_dim = out_dim
 
-        self.update_gate_in = nn.Linear(in_dim, out_dim)
-        self.update_gate_hidden = nn.Linear(out_dim, out_dim, bias=False)
+        self.update_gate_in = nn.Linear(in_dim, out_dim, bias=False)
+        self.update_gate_hidden = nn.Linear(out_dim, out_dim)
         self.update_gate_sigmoid = nn.Sigmoid()
 
-        self.reset_gate_input = nn.Linear(in_dim, out_dim)
-        self.reset_gate_hidden = nn.Linear(out_dim, out_dim, bias=False)
+        self.reset_gate_input = nn.Linear(in_dim, out_dim, bias=False)
+        self.reset_gate_hidden = nn.Linear(out_dim, out_dim)
         self.reset_gate_sigmoid = nn.Sigmoid()
 
-        self.hidden_candidate_in = nn.Linear(in_dim, out_dim)
-        self.hidden_candidate_hidden = nn.Linear(out_dim, out_dim, bias=False)
+        self.hidden_candidate_in = nn.Linear(in_dim, out_dim, bias=False)
+        self.hidden_candidate_hidden = nn.Linear(out_dim, out_dim)
         self.hidden_candidate_tanh = nn.Tanh()
 
         self._hidden = None
@@ -324,13 +357,13 @@ class GRUBlock(nn.Module):
 
     def hidden_candidate(self, input: Tensor, hidden_state: Tensor, reset_val):
         return self.hidden_candidate_tanh(
-            self.hidden_candidate_in(input) + self.hidden_candidate_hidden(reset_val * hidden_state))
+            self.hidden_candidate_in(input) + reset_val * self.hidden_candidate_hidden(hidden_state))
 
     def calc_hidden_state(self, hidden_state: Tensor, hidden_candidate: Tensor, update_val):
         return update_val * hidden_state + (1 - update_val) * hidden_candidate
 
     def set_hidden_state(self, hidden_state: Tensor = None):
-        self._hidden = hidden_state
+        self._hidden = hidden_state.clone().detach_()
 
     def pop_hidden_state(self):
         hidden_state = self._hidden
@@ -342,5 +375,6 @@ class GRUBlock(nn.Module):
         r = self.reset_gate(input, self._hidden)
         g = self.hidden_candidate(input, self._hidden, r)
 
-        self._hidden = self.calc_hidden_state(self._hidden, g, z)
-        return self._hidden
+        hidden = self.calc_hidden_state(self._hidden, g, z)
+        self.set_hidden_state(hidden)
+        return hidden
