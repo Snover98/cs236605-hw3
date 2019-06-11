@@ -113,19 +113,19 @@ def chars_to_labelled_samples(text: str, char_to_idx: dict, seq_len: int,
     # ====== YOUR CODE: ======
     embedded_text = chars_to_onehot(text, char_to_idx).to(device)
 
-    samples_split = embedded_text[:-1, :].split(seq_len)
-    if samples_split[-1].shape[0] != seq_len:
-        samples_split = samples_split[:-1]
+    samples = embedded_text[:-1, :].split(seq_len)
+    if samples[-1].shape[0] != seq_len:
+        samples = samples[:-1]
 
-    samples = torch.stack(samples_split)
+    samples = torch.stack(samples)
 
-    text_labels = (embedded_text == 1).nonzero()[:, 1]
+    labels = (embedded_text == 1).nonzero()[:, 1]
 
-    labels_split = text_labels[1:].split(seq_len)
-    if labels_split[-1].shape[0] != seq_len:
-        labels_split = labels_split[:-1]
+    labels = labels[1:].split(seq_len)
+    if labels[-1].shape[0] != seq_len:
+        labels = labels[:-1]
 
-    labels = torch.stack(labels_split)
+    labels = torch.stack(labels)
 
     # ========================
     return samples, labels
