@@ -266,7 +266,7 @@ class MultilayerGRU(nn.Module):
             gru_layer = GRUBlock(prev_dim, h_dim)
             sequence.append(gru_layer)
             if dropout != 0:
-                self.sequence.append(nn.Dropout(dropout))
+                sequence.append(nn.Dropout(dropout))
 
             self.GRU_layers.append(gru_layer)
 
