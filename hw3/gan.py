@@ -180,7 +180,17 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     # TODO: Implement the discriminator loss.
     # See torch's BCEWithLogitsLoss for a numerically stable implementation.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    num_samples = y_data.shape[0]
+    noise_range = (-label_noise / 2, label_noise / 2)
+
+    data_labels = torch.zeros(num_samples) + data_label + torch.FloatTensor(num_samples).uniform_(*noise_range)
+    gen_labels = torch.ones(num_samples) - data_label + torch.FloatTensor(num_samples).uniform_(*noise_range)
+
+    loss_fn = nn.BCEWithLogitsLoss()
+
+    loss_data = torch.mean(loss_fn(y_data, data_labels))
+    loss_generated = torch.mean(loss_fn(y_data, gen_labels))
+
     # ========================
     return loss_data + loss_generated
 
