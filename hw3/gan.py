@@ -23,13 +23,13 @@ class Discriminator(nn.Module):
         # flatten the features.
         # ====== YOUR CODE: ======
         self.feature_extractor = nn.Sequential(
-            # 64 -> 34
+            # 64 -> 32
             nn.Conv2d(in_channels=in_size[0], out_channels=16, kernel_size=4, stride=2, padding=1, bias=False),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(16),
 
-            # 34 -> 16
-            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=4, stride=2, dilation=1, padding=0, bias=False),
+            # 32 -> 16
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=2, stride=2, dilation=1, padding=0, bias=False),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(32),
 
@@ -95,10 +95,10 @@ class Generator(nn.Module):
             nn.ReLU(),
 
             nn.BatchNorm2d(32),
-            # 16 -> 34
-            nn.ConvTranspose2d(out_channels=32, in_channels=32, kernel_size=4, stride=2, dilation=1, padding=0, bias=False),
+            # 16 -> 32
+            nn.ConvTranspose2d(out_channels=32, in_channels=32, kernel_size=2, stride=2, dilation=1, padding=0, bias=False),
             nn.ReLU(),
-            # 34 -> 64
+            # 32 -> 64
             nn.ConvTranspose2d(out_channels=out_channels, in_channels=32, kernel_size=4, stride=2, dilation=1, padding=1, bias=False),
             nn.Tanh()
 
