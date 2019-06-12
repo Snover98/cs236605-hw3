@@ -83,23 +83,27 @@ class Generator(nn.Module):
 
         self.conv = nn.Sequential(
             # 1 -> 4
-            nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=featuremap_size, bias=False),
+            nn.ConvTranspose2d(out_channels=z_dim, in_channels=z_dim, kernel_size=featuremap_size, bias=False),
             nn.ReLU(),
 
             nn.BatchNorm2d(64),
             # 4 -> 7
-            nn.ConvTranspose2d(out_channels=64, in_channels=64, kernel_size=4, stride=2, dilation=2, padding=3, bias=False),
+            nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=4, stride=2, dilation=2, padding=3,
+                               bias=False),
             nn.ReLU(),
             # 7 -> 16
-            nn.ConvTranspose2d(out_channels=32, in_channels=64, kernel_size=4, stride=2, dilation=1, padding=0, bias=False),
+            nn.ConvTranspose2d(out_channels=32, in_channels=64, kernel_size=4, stride=2, dilation=1, padding=0,
+                               bias=False),
             nn.ReLU(),
 
             nn.BatchNorm2d(32),
             # 16 -> 32
-            nn.ConvTranspose2d(out_channels=32, in_channels=32, kernel_size=2, stride=2, dilation=1, padding=0, bias=False),
+            nn.ConvTranspose2d(out_channels=16, in_channels=32, kernel_size=2, stride=2, dilation=1, padding=0,
+                               bias=False),
             nn.ReLU(),
             # 32 -> 64
-            nn.ConvTranspose2d(out_channels=out_channels, in_channels=32, kernel_size=4, stride=2, dilation=1, padding=1, bias=False),
+            nn.ConvTranspose2d(out_channels=out_channels, in_channels=16, kernel_size=4, stride=2, dilation=1,
+                               padding=1, bias=False),
             nn.Tanh()
 
         )
