@@ -135,7 +135,11 @@ class Generator(nn.Module):
         # Don't use a loop.
         # ====== YOUR CODE: ======
         noise = torch.randn(n, self.z_dim, requires_grad=with_grad, device=device)
-        samples = self.forward(noise)
+        if not with_grad:
+            with torch.no_grad():
+                samples = self.forward(noise)
+        else:
+            samples = self.forward(noise)
         # ========================
         return samples
 
