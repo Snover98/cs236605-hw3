@@ -12,9 +12,9 @@ math (delimited with $$).
 def part1_generation_params():
     start_seq = ""
     temperature = .0001
-    # TODO: Tweak the parameters to generate a literary masterpiece.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    start_seq = "ACT I"
+    temperature = 0.75
     # ========================
     return start_seq, temperature
 
@@ -128,20 +128,21 @@ PART3_CUSTOM_DATA_URL = None
 
 def part3_gan_hyperparams():
     hypers = dict(
-        batch_size=0, z_dim=0,
-        data_label=0, label_noise=0.0,
+        batch_size=32, z_dim=128,
+        data_label=1, label_noise=0.2,
         discriminator_optimizer=dict(
-            type='',  # Any name in nn.optim like SGD, Adam
-            lr=0.0,
+            type='SGD',  # Any name in nn.optim like SGD, Adam
+            lr=0.001
         ),
         generator_optimizer=dict(
-            type='',  # Any name in nn.optim like SGD, Adam
-            lr=0.0,
+            type='Adam',  # Any name in nn.optim like SGD, Adam
+            lr=0.0002,
+            betas=(0.5, 0.999)
         ),
     )
     # TODO: Tweak the hyperparameters to train your GAN.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+
     # ========================
     return hypers
 
