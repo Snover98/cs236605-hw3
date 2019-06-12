@@ -10,7 +10,7 @@ from .autoencoder import EncoderCNN, DecoderCNN
 
 
 class NoiseLayer(nn.Module):
-    def __init__(self, mult=0.1):
+    def __init__(self, mult=0.2):
         super().__init__()
         self.mult = mult
 
@@ -89,35 +89,34 @@ class Generator(nn.Module):
         # section or implement something new.
         # You can assume a fixed image size.
         # ====== YOUR CODE: ======
-        starting_noise = 0.5
         self.conv = nn.Sequential(
             # 1 -> 4
-            NoiseLayer(starting_noise),
+            NoiseLayer(),
             nn.ConvTranspose2d(out_channels=z_dim, in_channels=z_dim, kernel_size=featuremap_size, bias=False),
             nn.LeakyReLU(0.2),
 
             nn.BatchNorm2d(128),
             # 4 -> 8
-            NoiseLayer(starting_noise**2),
+            NoiseLayer(),
             nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=4, stride=2, dilation=1, padding=1,
                                bias=False),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
             # 8 -> 16
-            NoiseLayer(starting_noise**3),
+            NoiseLayer(),
             nn.ConvTranspose2d(out_channels=32, in_channels=64, kernel_size=4, stride=2, dilation=1, padding=1,
                                bias=False),
             nn.LeakyReLU(0.2),
 
             nn.BatchNorm2d(32),
             # 16 -> 32
-            NoiseLayer(starting_noise**4),
+            NoiseLayer(),
             nn.ConvTranspose2d(out_channels=16, in_channels=32, kernel_size=2, stride=2, dilation=1, padding=0,
                                bias=False),
             nn.LeakyReLU(0.2),
             # 32 -> 64
             nn.BatchNorm2d(16),
-            NoiseLayer(starting_noise**5),
+            NoiseLayer(),
             nn.ConvTranspose2d(out_channels=out_channels, in_channels=16, kernel_size=4, stride=2, dilation=1,
                                padding=1, bias=False),
             nn.Tanh()
