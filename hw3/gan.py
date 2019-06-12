@@ -209,7 +209,11 @@ def generator_loss_fn(y_generated, data_label=0):
     # Think about what you need to compare the input to, in order to
     # formulate the loss in terms of Binary Cross Entropy.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    target_labels = torch.zeros_like(y_generated) + data_label
+
+    loss_fn = nn.CrossEntropyLoss()
+
+    loss = torch.mean(loss_fn(y_generated, target_labels))
     # ========================
     return loss
 
