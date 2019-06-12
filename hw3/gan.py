@@ -230,7 +230,16 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     # 2. Calculate discriminator loss
     # 3. Update discriminator parameters
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    dsc_optimizer.zero_grad()
+    gen_data = gen_model.sample(x_data.shape[0])
+
+    data_scores = dsc_model(x_data)
+    gen_scores = dsc_model(gen_data)
+
+    dsc_loss = dsc_loss_fn(data_scores, gen_data)
+
+    dsc_loss.backward()
+    dsc_optimizer.step()
     # ========================
 
     # TODO: Generator update
@@ -238,7 +247,15 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     # 2. Calculate generator loss
     # 3. Update generator parameters
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    gen_optimizer.zero_grad()
+
+    gen_data = gen_model.sample(x_data.shape[0], with_grad=True)
+    gen_scores = dsc_model(gen_data)
+
+    gen_loss = gen_loss_fn(gen_scores)
+
+    gen_loss.backward()
+    gen_optimizer.step()
     # ========================
 
     return dsc_loss.item(), gen_loss.item()
