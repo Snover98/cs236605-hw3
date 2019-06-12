@@ -45,7 +45,7 @@ class Discriminator(nn.Module):
             nn.BatchNorm2d(64),
 
             # 4 -> 1
-            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=2, stride=1, dilation=3, padding=0),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=1, dilation=1, padding=0),
             nn.LeakyReLU(0.2),
         )
 
@@ -90,11 +90,9 @@ class Generator(nn.Module):
         # You can assume a fixed image size.
         # ====== YOUR CODE: ======
 
-        self.featuremap_size = featuremap_size
-
         self.conv = nn.Sequential(
             # 1 -> 4
-            nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=2, stride=1, dilation=3, padding=0),
+            nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=featuremap_size),
             nn.LeakyReLU(0.2),
 
             nn.BatchNorm2d(64),
@@ -120,12 +118,6 @@ class Generator(nn.Module):
 
         )
 
-        # self.fc = nn.Sequential(
-        #     nn.Linear(16, 32),
-        #     nn.LeakyReLU(0.2),
-        #     nn.Linear(32, 128)
-        #
-        # )
         # ========================
 
     def sample(self, n, with_grad=False):
@@ -142,7 +134,8 @@ class Generator(nn.Module):
         # Generate n latent space samples and return their reconstructions.
         # Don't use a loop.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        noise = torch.randn(n, self.z_dim, requires_grad=with_grad, device=device)
+        samples = self.forward(noise)
         # ========================
         return samples
 
