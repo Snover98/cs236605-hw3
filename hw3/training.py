@@ -289,7 +289,11 @@ class RNNTrainer(Trainer):
             # - Calculate number of correct predictions
             # ====== YOUR CODE: ======
             # Forward pass
-            y_hat, self.hidden_test = self.model(x, self.hidden_test)
+            y = y.view(-1)
+
+            y_hat, self.hidden_train = self.model(x, self.hidden_train)
+            y_hat = y_hat.view(-1, y_hat.shape[-1])
+
             loss = self.loss_fn(y_hat, y)
 
             # Calculate number of correct predictions
