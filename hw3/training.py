@@ -297,7 +297,7 @@ class RNNTrainer(Trainer):
             loss = self.loss_fn(y_hat, y)
 
             # Calculate number of correct predictions
-            num_correct = (y_hat.argmax(dim=1) == y).sum().item()
+            num_correct = (y_hat.argmax(dim=1) == y).sum()
             # ========================
 
         return BatchResult(loss.item(), num_correct.item() / seq_len)
