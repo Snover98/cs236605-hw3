@@ -28,6 +28,7 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(0.2),
             # 60 -> 30
             nn.Conv2d(in_channels=16, out_channels=16, kernel_size=4, stride=2, dilation=1, padding=1),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm2d(16),
 
             # 30 -> 22
@@ -35,6 +36,7 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(0.2),
             # 22 -> 11
             nn.Conv2d(in_channels=32, out_channels=32, kernel_size=4, stride=2, dilation=1, padding=1),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm2d(32),
 
             # 11 -> 8
@@ -42,6 +44,7 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(0.2),
             # 8- > 4
             nn.Conv2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, dilation=1, padding=0),
+            nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
 
             # 4 -> 1
@@ -93,28 +96,31 @@ class Generator(nn.Module):
         self.conv = nn.Sequential(
             # 1 -> 4
             nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=featuremap_size),
-            nn.LeakyReLU(0.2),
+            nn.ReLU(),
 
             nn.BatchNorm2d(64),
             # 4 -> 8
             nn.ConvTranspose2d(out_channels=64, in_channels=64, kernel_size=2, stride=2, dilation=1, padding=0),
-            nn.LeakyReLU(0.2),
+            nn.ReLU(),
             # 8 -> 11
             nn.ConvTranspose2d(out_channels=32, in_channels=64, kernel_size=2, stride=1, dilation=3, padding=0),
+            nn.ReLU(),
 
             nn.BatchNorm2d(32),
             # 11 -> 22
             nn.ConvTranspose2d(out_channels=32, in_channels=32, kernel_size=4, stride=2, dilation=1, padding=1),
-            nn.LeakyReLU(0.2),
+            nn.ReLU(),
             # 22 -> 30
             nn.ConvTranspose2d(out_channels=16, in_channels=32, kernel_size=5, stride=1, dilation=2, padding=0),
+            nn.ReLU(),
 
             nn.BatchNorm2d(16),
             # 30 -> 60
             nn.ConvTranspose2d(out_channels=16, in_channels=16, kernel_size=4, stride=2, dilation=1, padding=1),
-            nn.LeakyReLU(0.2),
+            nn.ReLU(),
             # 60 -> 64
-            nn.ConvTranspose2d(out_channels=out_channels, in_channels=16, kernel_size=5, stride=1, padding=0)
+            nn.ConvTranspose2d(out_channels=out_channels, in_channels=16, kernel_size=5, stride=1, padding=0),
+            nn.Tanh()
 
         )
 
