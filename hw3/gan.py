@@ -22,27 +22,35 @@ class Discriminator(nn.Module):
         # You can then use either an affine layer or another conv layer to
         # flatten the features.
         # ====== YOUR CODE: ======
-        self.conv = nn.Sequential(
+        self.feature_extractor = nn.Sequential(
+            # 64 -> 60
             nn.Conv2d(in_channels=in_size[0], out_channels=16, kernel_size=5, stride=1, padding=0),
             nn.LeakyReLU(0.2),
+            # 60 -> 30
             nn.Conv2d(in_channels=16, out_channels=16, kernel_size=4, stride=2, dilation=1, padding=1),
             nn.BatchNorm2d(16),
 
+            # 30 -> 22
             nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, stride=1, dilation=2, padding=0),
             nn.LeakyReLU(0.2),
+            # 22 -> 11
             nn.Conv2d(in_channels=32, out_channels=32, kernel_size=4, stride=2, dilation=1, padding=1),
             nn.BatchNorm2d(32),
 
+            # 11 -> 8
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=2, stride=1, dilation=3, padding=0),
             nn.LeakyReLU(0.2),
+            # 8- > 4
             nn.Conv2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, dilation=1, padding=0),
             nn.BatchNorm2d(64),
 
+            # 4 -> 1
             nn.Conv2d(in_channels=64, out_channels=128, kernel_size=2, stride=1, dilation=3, padding=0),
-            nn.LeakyReLU(0.2)
+            nn.LeakyReLU(0.2),
         )
 
-        self.fc = nn.Sequential(
+        self.classifier = nn.Sequential(
+
             nn.Linear(128, 32),
             nn.LeakyReLU(0.2),
             nn.Linear(32, 1)
@@ -59,8 +67,8 @@ class Discriminator(nn.Module):
         # No need to apply sigmoid to obtain probability - we'll combine it
         # with the loss due to improved numerical stability.
         # ====== YOUR CODE: ======
-        features = self.conv(x).view(x.shape[0], -1)
-        y = self.fc(features)
+        features = self.feature_extractor(x).view(x.shape[0], -1)
+        y = self.classifier(features)
         # ========================
         return y
 
@@ -81,7 +89,43 @@ class Generator(nn.Module):
         # section or implement something new.
         # You can assume a fixed image size.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+
+        self.featuremap_size = featuremap_size
+
+        self.conv = nn.Sequential(
+            # 1 -> 4
+            nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=2, stride=1, dilation=3, padding=0),
+            nn.LeakyReLU(0.2),
+
+            nn.BatchNorm2d(64),
+            # 4 -> 8
+            nn.ConvTranspose2d(out_channels=64, in_channels=64, kernel_size=2, stride=2, dilation=1, padding=0),
+            nn.LeakyReLU(0.2),
+            # 8 -> 11
+            nn.ConvTranspose2d(out_channels=32, in_channels=64, kernel_size=2, stride=1, dilation=3, padding=0),
+
+            nn.BatchNorm2d(32),
+            # 11 -> 22
+            nn.ConvTranspose2d(out_channels=32, in_channels=32, kernel_size=4, stride=2, dilation=1, padding=1),
+            nn.LeakyReLU(0.2),
+            # 22 -> 30
+            nn.ConvTranspose2d(out_channels=16, in_channels=32, kernel_size=5, stride=1, dilation=2, padding=0),
+
+            nn.BatchNorm2d(16),
+            # 30 -> 60
+            nn.ConvTranspose2d(out_channels=16, in_channels=16, kernel_size=4, stride=2, dilation=1, padding=1),
+            nn.LeakyReLU(0.2),
+            # 60 -> 64
+            nn.ConvTranspose2d(out_channels=out_channels, in_channels=16, kernel_size=5, stride=1, padding=0)
+
+        )
+
+        # self.fc = nn.Sequential(
+        #     nn.Linear(16, 32),
+        #     nn.LeakyReLU(0.2),
+        #     nn.Linear(32, 128)
+        #
+        # )
         # ========================
 
     def sample(self, n, with_grad=False):
@@ -112,7 +156,7 @@ class Generator(nn.Module):
         # Don't forget to make sure the output instances have the same scale
         # as the original (real) images.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        x = self.conv(z)
         # ========================
         return x
 
