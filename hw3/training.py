@@ -253,11 +253,11 @@ class RNNTrainer(Trainer):
         # ====== YOUR CODE: ======
         self.optimizer.zero_grad()
 
-        y = torch.squeeze(y)
+        y = y.view(-1)
 
         # Forward pass
         y_hat, self.hidden_train = self.model(x, self.hidden_train)
-        y_hat = torch.squeeze(y_hat)
+        y_hat = y_hat.view(-1, y_hat.shape[-1])
 
         # calculate loss
         loss = self.loss_fn(y_hat, y)
