@@ -68,8 +68,8 @@ class Discriminator(nn.Module):
         # No need to apply sigmoid to obtain probability - we'll combine it
         # with the loss due to improved numerical stability.
         # ====== YOUR CODE: ======
-        features = self.feature_extractor(x).view(x.shape[0], -1)
-        y = self.classifier(features)
+        features = self.feature_extractor(x)
+        y = self.classifier(features).view(x.shape[0], -1)
         # ========================
         return y
 
