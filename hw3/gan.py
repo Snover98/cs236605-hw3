@@ -177,13 +177,17 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     # TODO: Implement the discriminator loss.
     # See torch's BCEWithLogitsLoss for a numerically stable implementation.
     # ====== YOUR CODE: ======
+    device = y_data.device
+
     num_samples = y_data.shape[0]
     noise_range = (-label_noise / 2, label_noise / 2)
 
     data_labels = torch.zeros(num_samples) + data_label + torch.FloatTensor(num_samples).uniform_(*noise_range)
     gen_labels = torch.ones(num_samples) - data_label + torch.FloatTensor(num_samples).uniform_(*noise_range)
 
-    loss_fn = nn.BCEWithLogitsLoss()
+    data_labels, gen_labels = data_labels.to(device), gen_labels.to(device)
+
+    loss_fn = nn.BCEWithLogitsLoss().to(device)
 
     loss_data = torch.mean(loss_fn(y_data, data_labels))
     loss_generated = torch.mean(loss_fn(y_generated, gen_labels))
@@ -206,9 +210,11 @@ def generator_loss_fn(y_generated, data_label=0):
     # Think about what you need to compare the input to, in order to
     # formulate the loss in terms of Binary Cross Entropy.
     # ====== YOUR CODE: ======
-    target_labels = torch.zeros_like(y_generated) + data_label
+    device = y_generated.device
 
-    loss_fn = nn.BCEWithLogitsLoss()
+    target_labels = torch.zeros_like(y_generated, device=device) + data_label
+
+    loss_fn = nn.BCEWithLogitsLoss().to(device)
 
     loss = loss_fn(y_generated, target_labels)
     # ========================
@@ -233,8 +239,8 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     dsc_optimizer.zero_grad()
     gen_data = gen_model.sample(x_data.shape[0])
 
-    data_scores = dsc_model(x_data)
-    gen_scores = dsc_model(gen_data)
+    data_scores = torch.squeeze(dsc_model(x_data))
+    gen_scores = torch.squeeze(dsc_model(gen_data))
 
     dsc_loss = dsc_loss_fn(data_scores, gen_scores)
 
