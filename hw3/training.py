@@ -86,12 +86,12 @@ class Trainer(abc.ABC):
             #   simple regularization technique that is highly recommended.
             # ====== YOUR CODE: ======
             losses, acc = train_result = self.train_epoch(dl_train, **kw)
-            loss = torch.mean(losses)
+            loss = torch.mean(torch.Tensor(losses))
             train_loss.append(loss)
             train_acc.append(acc)
 
             losses, acc = test_result = self.test_epoch(dl_test, **kw)
-            loss = torch.mean(losses)
+            loss = torch.mean(torch.Tensor(losses))
             test_loss.append(loss)
             test_acc.append(acc)
 
