@@ -7,7 +7,20 @@ class EncoderCNN(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
 
-        modules = []
+        conv1 = nn.Conv2d(in_channels, in_channels*5, (7, 7), stride=3,
+                          padding=3)
+        relu1 = nn.ReLU()
+
+        conv2 = nn.Conv2d(in_channels*5, in_channels*20, (5, 5), stride=3,
+                          padding=2)
+        relu2 = nn.ReLU()
+
+        conv3 = nn.Conv2d(in_channels*20, in_channels*80, (5, 5), padding=2)
+        relu3 = nn.ReLU()
+
+        conv4 = nn.Conv2d(in_channels*80, out_channels, (3, 3))
+
+        modules = [conv1, relu1, conv2, relu2, conv3, relu3, conv4]
 
         # TODO: Implement a CNN. Save the layers in the modules list.
         # The input shape is an image batch: (N, in_channels, H_in, W_in).
@@ -17,7 +30,6 @@ class EncoderCNN(nn.Module):
         # You can use any Conv layer parameters, use pooling or only strides,
         # use any activation functions, use BN or Dropout, etc.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
         # ========================
         self.cnn = nn.Sequential(*modules)
 
@@ -29,7 +41,20 @@ class DecoderCNN(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
 
-        modules = []
+        conv1 = nn.ConvTranspose2d(in_channels, out_channels*80, (3, 3))
+        relu1 = nn.ReLU()
+
+        conv2 = nn.ConvTranspose2d(out_channels*80, out_channels*20, (5, 5), padding=2)
+        relu2 = nn.ReLU()
+
+        conv3 = nn.ConvTranspose2d(out_channels*20, out_channels*5, (5, 5), stride=3,
+                                   padding=2)
+        relu3 = nn.ReLU()
+
+        conv4 = nn.ConvTranspose2d(out_channels*5, out_channels, (7, 7), stride=3,
+                                   padding=3)
+
+        modules = [conv1, relu1, conv2, relu2, conv3, relu3, conv4]
 
         # TODO: Implement the "mirror" CNN of the encoder.
         # For example, instead of Conv layers use transposed convolutions,
@@ -39,7 +64,6 @@ class DecoderCNN(nn.Module):
         # Output should be a batch of images, with same dimensions as the
         # inputs to the Encoder were.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
         # ========================
         self.cnn = nn.Sequential(*modules)
 
