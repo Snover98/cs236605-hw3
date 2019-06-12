@@ -189,7 +189,7 @@ def discriminator_loss_fn(y_data, y_generated, data_label=0, label_noise=0.0):
     loss_fn = nn.BCEWithLogitsLoss()
 
     loss_data = torch.mean(loss_fn(y_data, data_labels))
-    loss_generated = torch.mean(loss_fn(y_data, gen_labels))
+    loss_generated = torch.mean(loss_fn(y_generated, gen_labels))
 
     # ========================
     return loss_data + loss_generated
