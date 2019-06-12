@@ -15,7 +15,7 @@ class NoiseLayer(nn.Module):
         self.mult = mult
 
     def forward(self, x):
-        return x + torch.randn(*x.shape)*self.mult
+        return x + torch.randn(*x.shape, device=x.device)*self.mult
 
 
 class Discriminator(nn.Module):
