@@ -97,6 +97,7 @@ class Trainer(abc.ABC):
 
             if best_acc is None or acc > best_acc:
                 best_acc = acc
+                epochs_without_improvement = 0
             else:
                 epochs_without_improvement += 1
                 if early_stopping is not None and epochs_without_improvement == early_stopping:
