@@ -237,6 +237,10 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     # 3. Update discriminator parameters
     # ====== YOUR CODE: ======
     dsc_optimizer.zero_grad()
+
+    gen_model.eval()
+    dsc_model.train()
+
     gen_data = gen_model.sample(x_data.shape[0])
 
     data_scores = torch.squeeze(dsc_model(x_data))
@@ -254,6 +258,9 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     # 3. Update generator parameters
     # ====== YOUR CODE: ======
     gen_optimizer.zero_grad()
+
+    gen_model.train()
+    dsc_model.eval()
 
     gen_data = gen_model.sample(x_data.shape[0], with_grad=True)
     gen_scores = dsc_model(gen_data)
