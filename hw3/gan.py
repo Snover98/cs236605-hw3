@@ -33,11 +33,11 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(32),
 
-            # 16 -> 7
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2, dilation=1, padding=0, bias=False),
+            # 16 -> 8
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=4, stride=2, dilation=1, padding=1, bias=False),
             nn.LeakyReLU(0.2),
-            # 7 -> 4
-            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=2, dilation=2, padding=3, bias=False),
+            # 8 -> 4
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=2, dilation=1, padding=1, bias=False),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(128)
         )
@@ -87,13 +87,13 @@ class Generator(nn.Module):
             nn.ReLU(),
 
             nn.BatchNorm2d(128),
-            # 4 -> 7
-            nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=4, stride=2, dilation=2, padding=3,
+            # 4 -> 8
+            nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=4, stride=2, dilation=1, padding=1,
                                bias=False),
             nn.ReLU(),
             nn.BatchNorm2d(64),
-            # 7 -> 16
-            nn.ConvTranspose2d(out_channels=32, in_channels=64, kernel_size=4, stride=2, dilation=1, padding=0,
+            # 8 -> 16
+            nn.ConvTranspose2d(out_channels=32, in_channels=64, kernel_size=4, stride=2, dilation=1, padding=1,
                                bias=False),
             nn.ReLU(),
 
