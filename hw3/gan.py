@@ -211,9 +211,9 @@ def generator_loss_fn(y_generated, data_label=0):
     # ====== YOUR CODE: ======
     target_labels = torch.zeros_like(y_generated) + data_label
 
-    loss_fn = nn.BCELoss()
+    loss_fn = nn.BCEWithLogitsLoss()
 
-    loss = torch.mean(loss_fn(y_generated, target_labels))
+    loss = loss_fn(y_generated, target_labels)
     # ========================
     return loss
 
