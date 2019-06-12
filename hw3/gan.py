@@ -22,7 +22,27 @@ class Discriminator(nn.Module):
         # You can then use either an affine layer or another conv layer to
         # flatten the features.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.conv = nn.Sequential(
+            nn.Conv2d(in_channels=in_size[0], out_channels=16, kernel_size=5, stride=1, padding=0),
+            nn.LeakyReLU(0.2),
+            nn.Conv2d(in_channels=16, out_channels=16, kernel_size=4, stride=2, dilation=1, padding=1),
+            nn.BatchNorm2d(30),
+
+            nn.Conv2d(in_channels=16, out_channels=32, kernel_size=5, stride=1, dilation=2, padding=0),
+            nn.LeakyReLU(0.2),
+            nn.Conv2d(in_channels=32, out_channels=32, kernel_size=4, stride=2, dilation=1, padding=1),
+            nn.BatchNorm2d(11),
+
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=2, stride=1, dilation=3, padding=0),
+            nn.LeakyReLU(0.2),
+            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, dilation=1, padding=0),
+            nn.BatchNorm2d(4),
+
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=2, stride=1, dilation=3, padding=0),
+            nn.LeakyReLU(0.2)
+        )
+
+        self.fc = nn.Linear(128, 1)
         # ========================
 
     def forward(self, x):
@@ -35,7 +55,8 @@ class Discriminator(nn.Module):
         # No need to apply sigmoid to obtain probability - we'll combine it
         # with the loss due to improved numerical stability.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        features = self.conv(x).view(x.shape[0], -1)
+        y = self.fc(features)
         # ========================
         return y
 
