@@ -88,35 +88,36 @@ class Generator(nn.Module):
         # To combine image features you can use the DecoderCNN from the VAE
         # section or implement something new.
         # You can assume a fixed image size.
+        noise = 0.5
         # ====== YOUR CODE: ======
         self.conv = nn.Sequential(
             # 1 -> 4
-            NoiseLayer(),
+            NoiseLayer(noise**0),
             nn.ConvTranspose2d(out_channels=z_dim, in_channels=z_dim, kernel_size=featuremap_size, bias=False),
             nn.LeakyReLU(0.2),
 
             nn.BatchNorm2d(128),
             # 4 -> 8
-            NoiseLayer(),
+            NoiseLayer(noise**1),
             nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=4, stride=2, dilation=1, padding=1,
                                bias=False),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
             # 8 -> 16
-            NoiseLayer(),
+            NoiseLayer(noise**2),
             nn.ConvTranspose2d(out_channels=32, in_channels=64, kernel_size=4, stride=2, dilation=1, padding=1,
                                bias=False),
             nn.LeakyReLU(0.2),
 
             nn.BatchNorm2d(32),
             # 16 -> 32
-            NoiseLayer(),
+            NoiseLayer(noise**3),
             nn.ConvTranspose2d(out_channels=16, in_channels=32, kernel_size=2, stride=2, dilation=1, padding=0,
                                bias=False),
             nn.LeakyReLU(0.2),
             # 32 -> 64
             nn.BatchNorm2d(16),
-            NoiseLayer(),
+            NoiseLayer(noise**4),
             nn.ConvTranspose2d(out_channels=out_channels, in_channels=16, kernel_size=4, stride=2, dilation=1,
                                padding=1, bias=False),
             nn.Tanh()
