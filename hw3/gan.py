@@ -43,18 +43,14 @@ class Discriminator(nn.Module):
             nn.Conv2d(in_channels=32, out_channels=64, kernel_size=2, stride=1, dilation=3, padding=0, bias=False),
             nn.LeakyReLU(0.2),
             # 8- > 4
-            nn.Conv2d(in_channels=64, out_channels=64, kernel_size=2, stride=2, dilation=1, padding=0, bias=False),
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=2, stride=2, dilation=1, padding=0, bias=False),
             nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(64),
-
-            # 4 -> 1
-            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=1, dilation=1, padding=0, bias=False),
-            nn.LeakyReLU(0.2),
+            nn.BatchNorm2d(128)
         )
 
         self.classifier = nn.Sequential(
-            nn.BatchNorm2d(128),
-            nn.Conv2d(in_channels=128, out_channels=1, kernel_size=1, stride=1, dilation=1, padding=0, bias=False),
+            # 4 -> 1
+            nn.Conv2d(in_channels=128, out_channels=1, kernel_size=4, stride=1, dilation=1, padding=0, bias=False)
         )
         # ========================
 
