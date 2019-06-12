@@ -236,7 +236,7 @@ def train_batch(dsc_model: Discriminator, gen_model: Generator,
     data_scores = dsc_model(x_data)
     gen_scores = dsc_model(gen_data)
 
-    dsc_loss = dsc_loss_fn(data_scores, gen_data)
+    dsc_loss = dsc_loss_fn(data_scores, gen_scores)
 
     dsc_loss.backward()
     dsc_optimizer.step()
