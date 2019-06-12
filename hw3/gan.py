@@ -156,7 +156,7 @@ class Generator(nn.Module):
         # Don't forget to make sure the output instances have the same scale
         # as the original (real) images.
         # ====== YOUR CODE: ======
-        x = self.conv(z)
+        x = self.conv(z.view(*z.shape, 1, 1))
         # ========================
         return x
 
