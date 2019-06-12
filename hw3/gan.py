@@ -42,7 +42,11 @@ class Discriminator(nn.Module):
             nn.LeakyReLU(0.2)
         )
 
-        self.fc = nn.Linear(128, 1)
+        self.fc = nn.Sequential(
+            nn.Linear(128, 32),
+            nn.LeakyReLU(0.2),
+            nn.Linear(32, 1)
+        )
         # ========================
 
     def forward(self, x):
