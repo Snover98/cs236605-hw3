@@ -33,7 +33,7 @@ class Discriminator(nn.Module):
         # ====== YOUR CODE: ======
         self.feature_extractor = nn.Sequential(
             # 64 -> 32
-            NoiseLayer(0.5),
+            nn.Dropout2d(),
             nn.Conv2d(in_channels=in_size[0], out_channels=16, kernel_size=4, stride=2, padding=1, bias=False),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(16),
@@ -95,32 +95,32 @@ class Generator(nn.Module):
         # ====== YOUR CODE: ======
         self.conv = nn.Sequential(
             # 1 -> 4
-            NoiseLayer(),
+            nn.Dropout2d(),
             nn.ConvTranspose2d(out_channels=128, in_channels=z_dim, kernel_size=featuremap_size, bias=False),
             nn.LeakyReLU(0.2),
 
             nn.BatchNorm2d(128),
             # 4 -> 8
-            NoiseLayer(),
+            nn.Dropout2d(),
             nn.ConvTranspose2d(out_channels=64, in_channels=128, kernel_size=4, stride=2, dilation=1, padding=1,
                                bias=False),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
             # 8 -> 16
-            NoiseLayer(),
+            nn.Dropout2d(),
             nn.ConvTranspose2d(out_channels=32, in_channels=64, kernel_size=4, stride=2, dilation=1, padding=1,
                                bias=False),
             nn.LeakyReLU(0.2),
 
             nn.BatchNorm2d(32),
             # 16 -> 32
-            NoiseLayer(),
+            nn.Dropout2d(),
             nn.ConvTranspose2d(out_channels=16, in_channels=32, kernel_size=2, stride=2, dilation=1, padding=0,
                                bias=False),
             nn.LeakyReLU(0.2),
             # 32 -> 64
             nn.BatchNorm2d(16),
-            NoiseLayer(),
+            nn.Dropout2d(),
             nn.ConvTranspose2d(out_channels=out_channels, in_channels=16, kernel_size=4, stride=2, dilation=1,
                                padding=1, bias=False),
             nn.Tanh()
