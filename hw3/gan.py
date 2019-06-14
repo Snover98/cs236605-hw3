@@ -48,12 +48,15 @@ class Discriminator(nn.Module):
             # 8 -> 4
             nn.Conv2d(in_channels=64, out_channels=128, kernel_size=4, stride=2, dilation=1, padding=1, bias=False),
             nn.LeakyReLU(0.2),
-            nn.BatchNorm2d(128)
+            nn.BatchNorm2d(128),
+
+
         )
 
         self.classifier = nn.Sequential(
             # 4 -> 1
-            nn.Conv2d(in_channels=128, out_channels=1, kernel_size=4, stride=1, dilation=1, padding=0, bias=False)
+            nn.Conv2d(in_channels=128, out_channels=1, kernel_size=4, stride=1, dilation=1, padding=0, bias=False),
+            nn.Sigmoid()
         )
         # ========================
 
@@ -88,36 +91,37 @@ class Generator(nn.Module):
         # To combine image features you can use the DecoderCNN from the VAE
         # section or implement something new.
         # You can assume a fixed image size.
-        noise = 0.5
+        # noise = 0.5
         # ====== YOUR CODE: ======
+        self.featuremap_size = featuremap_size
         self.conv = nn.Sequential(
             # 1 -> 4
-            NoiseLayer(noise**0),
-            nn.ConvTranspose2d(out_channels=z_dim, in_channels=z_dim, kernel_size=featuremap_size, bias=False),
+            NoiseLayer(),
+            nn.ConvTranspose2d(out_channels=128, in_channels=z_dim, kernel_size=featuremap_size, bias=False),
             nn.LeakyReLU(0.2),
 
             nn.BatchNorm2d(128),
             # 4 -> 8
-            NoiseLayer(noise**1),
-            nn.ConvTranspose2d(out_channels=64, in_channels=z_dim, kernel_size=4, stride=2, dilation=1, padding=1,
+            NoiseLayer(),
+            nn.ConvTranspose2d(out_channels=64, in_channels=128, kernel_size=4, stride=2, dilation=1, padding=1,
                                bias=False),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(64),
             # 8 -> 16
-            NoiseLayer(noise**2),
+            NoiseLayer(),
             nn.ConvTranspose2d(out_channels=32, in_channels=64, kernel_size=4, stride=2, dilation=1, padding=1,
                                bias=False),
             nn.LeakyReLU(0.2),
 
             nn.BatchNorm2d(32),
             # 16 -> 32
-            NoiseLayer(noise**3),
+            NoiseLayer(),
             nn.ConvTranspose2d(out_channels=16, in_channels=32, kernel_size=2, stride=2, dilation=1, padding=0,
                                bias=False),
             nn.LeakyReLU(0.2),
             # 32 -> 64
             nn.BatchNorm2d(16),
-            NoiseLayer(noise**4),
+            NoiseLayer(),
             nn.ConvTranspose2d(out_channels=out_channels, in_channels=16, kernel_size=4, stride=2, dilation=1,
                                padding=1, bias=False),
             nn.Tanh()
@@ -140,7 +144,7 @@ class Generator(nn.Module):
         # Generate n latent space samples and return their reconstructions.
         # Don't use a loop.
         # ====== YOUR CODE: ======
-        noise = torch.randn(n, self.z_dim, requires_grad=with_grad, device=device)
+        noise = torch.randn(n, self.z_dim, device=device)
         if not with_grad:
             with torch.no_grad():
                 samples = self.forward(noise)
