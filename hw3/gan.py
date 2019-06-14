@@ -10,12 +10,15 @@ from .autoencoder import EncoderCNN, DecoderCNN
 
 
 class NoiseLayer(nn.Module):
-    def __init__(self, mult=0.2):
+    def __init__(self, decay=0.99):
         super().__init__()
-        self.mult = mult
+        self.mult = 1.0
+        self.decay = decay
 
     def forward(self, x):
-        return x + torch.randn(*x.shape, device=x.device)*self.mult
+        noise = torch.randn(*x.shape, device=x.device)*self.mult
+        self.mult *= self.decay
+        return x + noise
 
 
 class Discriminator(nn.Module):
