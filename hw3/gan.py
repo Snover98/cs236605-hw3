@@ -33,6 +33,7 @@ class Discriminator(nn.Module):
         # ====== YOUR CODE: ======
         self.feature_extractor = nn.Sequential(
             # 64 -> 32
+            NoiseLayer(0.5),
             nn.Conv2d(in_channels=in_size[0], out_channels=16, kernel_size=4, stride=2, padding=1, bias=False),
             nn.LeakyReLU(0.2),
             nn.BatchNorm2d(16),
@@ -55,8 +56,7 @@ class Discriminator(nn.Module):
 
         self.classifier = nn.Sequential(
             # 4 -> 1
-            nn.Conv2d(in_channels=128, out_channels=1, kernel_size=4, stride=1, dilation=1, padding=0, bias=False),
-            nn.Sigmoid()
+            nn.Conv2d(in_channels=128, out_channels=1, kernel_size=4, stride=1, dilation=1, padding=0, bias=False)
         )
         # ========================
 
@@ -93,7 +93,6 @@ class Generator(nn.Module):
         # You can assume a fixed image size.
         # noise = 0.5
         # ====== YOUR CODE: ======
-        self.featuremap_size = featuremap_size
         self.conv = nn.Sequential(
             # 1 -> 4
             NoiseLayer(),
