@@ -36,7 +36,7 @@ class Discriminator(nn.Module):
         # ====== YOUR CODE: ======
         self.feature_extractor = nn.Sequential(
             # 64 -> 32
-            NoiseLayer(0.5),
+            NoiseLayer(),
             nn.Conv2d(in_channels=in_size[0], out_channels=128, kernel_size=4, stride=2, padding=1, bias=False),
             NoiseLayer(),
             nn.LeakyReLU(0.2),
