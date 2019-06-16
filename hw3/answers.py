@@ -139,29 +139,28 @@ def part3_gan_hyperparams():
 
 
 part3_q1 = r"""
-**Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+When training, we are using a loss function for the discriminator and a loss function for the generator.  
+When doing a backward pass on the discriminator loss the gradients try to improve it's ability to discern  
+real inputs from ones the generator created.  
+If we maintained the gradients for sampling in this case, we'd have gradients that would try and make  
+the generator **worse** because that is what minimizing the discriminator loss function means.  
+On the other hand, when we want to train the generator according to it's loss function,  
+it's obvious that we'd want to maintain the gradients for it - after all we want to use them to improve the generator.  
+That means that we only want to maintain gradients while sampling from the generator only  
+when the samples would be used in the generator loss function in order to improve it.  
 """
 
 part3_q2 = r"""
-**Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+**1.**  
+When training a GAN to generate images we should **not** decide to stop only because the generator loss is below a threshold.  
+That is because it's very much possible that both the discriminator and the generator improved this epoch in such a way  
+that their losses stay the same, but the output is still of higher quality.  
+In this case while the improvements in them cancel each other out in the loss function, it's still an improvement.  
+  
+**2.**  
+If the discriminator loss stays at a constant value while the generator loss decrease it could mean that  
+the rate of the discriminator improvement is lower then the rate of the generator improvement.  
+Basically it means that the difference between the qualities of their outputs is getting larger.
 """
 
 part3_q3 = r"""
