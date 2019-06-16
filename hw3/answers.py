@@ -147,7 +147,7 @@ the generator **worse** because that is what minimizing the discriminator loss f
 On the other hand, when we want to train the generator according to it's loss function,  
 it's obvious that we'd want to maintain the gradients for it - after all we want to use them to improve the generator.  
 That means that we only want to maintain gradients while sampling from the generator only  
-when the samples would be used in the generator loss function in order to improve it.  
+when the samples would be used in the generator loss function in order to improve it.
 """
 
 part3_q2 = r"""
