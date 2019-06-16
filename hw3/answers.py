@@ -27,9 +27,9 @@ it has a similar accuracy and runs a lot faster.
 
 part1_q2 = r"""
 It is possible because of the usage of the hidden state (which encodes context and position in the text)  
-and because of the other parameters that the model learns.
+and because of the other parameters that the model learns.  
 This means that it basically remembers the text and can generate it from certain spots depending on the context  
-(i.e the hidden state)
+(i.e the hidden state).
 """
 
 part1_q3 = r"""
