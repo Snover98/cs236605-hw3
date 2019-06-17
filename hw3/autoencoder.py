@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
+from torch.distributions.multivariate_normal import MultivariateNormal
 
 
 class EncoderCNN(nn.Module):
@@ -91,7 +92,10 @@ class VAE(nn.Module):
 
         # TODO: Add parameters needed for encode() and decode().
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        self.w_h_mu = nn.Linear(n_features, z_dim)
+        self.w_h_sig = nn.Linear(n_features, z_dim)
+
+        self.w_z_h = nn.Linear(z_dim, n_features)
         # ========================
 
     def _check_features(self, in_size):
@@ -111,8 +115,20 @@ class VAE(nn.Module):
         # log_sigma2 (mean and log variance) of the posterior p(z|x).
         # 2. Apply the reparametrization trick.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
-        # ========================
+        h = self.features_encoder(x)
+        h = h.view(h.size(0), -1)
+
+        mu = self.w_h_mu(h)
+        log_sigma2 = self.w_h_sig(h)
+
+        sigma2 = torch.pow(2., log_sigma2)
+
+        u = MultivariateNormal(
+            loc=torch.zeros(self.z_dim),
+            covariance_matrix=torch.eye(self.z_dim)
+        ).sample()
+
+        z = mu + u * sigma2
 
         return z, mu, log_sigma2
 
@@ -121,7 +137,10 @@ class VAE(nn.Module):
         # 1. Convert latent to features.
         # 2. Apply features decoder.
         # ====== YOUR CODE: ======
-        raise NotImplementedError()
+        h_rec = self.w_z_h(z)
+        h_rec = h_rec.view(-1, *self.features_shape)
+
+        x_rec = self.features_decoder(h_rec)
         # ========================
 
         # Scale to [-1, 1] (same dynamic range as original images).
@@ -135,7 +154,16 @@ class VAE(nn.Module):
             # Generate n latent space samples and return their reconstructions.
             # Remember that for the model, this is like inference.
             # ====== YOUR CODE: ======
-            raise NotImplementedError()
+            normal_dist = MultivariateNormal(
+                loc=torch.zeros(self.z_dim),
+                covariance_matrix=torch.eye(self.z_dim)
+            )
+            for _ in range(n):
+                sample_z = normal_dist.sample()
+                sample_h = self.w_z_h(sample_z).view(-1, *self.features_shape)
+                sample_x = self.features_decoder(sample_h)
+
+                samples.append(sample_x.squeeze())
             # ========================
         return samples
 
@@ -164,7 +192,10 @@ def vae_loss(x, xr, z_mu, z_log_sigma2, x_sigma2):
     # 1. The covariance matrix of the posterior is diagonal.
     # 2. You need to average over the batch dimension.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
+    N = x.size(0)
+    data_loss = nn.functional.mse_loss(x, xr)
+    kldiv_loss = (1 + z_log_sigma2 - z_mu.pow(2) - z_log_sigma2.exp()).sum() / N
+    loss = (data_loss * (1/x_sigma2)) - kldiv_loss
     # ========================
 
     return loss, data_loss, kldiv_loss

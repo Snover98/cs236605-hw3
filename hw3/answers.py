@@ -71,13 +71,12 @@ PART2_CUSTOM_DATA_URL = None
 
 def part2_vae_hyperparams():
     hypers = dict(
-        batch_size=0,
-        h_dim=0, z_dim=0, x_sigma2=0,
-        learn_rate=0.0, betas=(0.0, 0.0),
+        batch_size=8,
+        h_dim=1024, z_dim=256, x_sigma2=0.75,
+        learn_rate=1e-5, betas=(0.95, 0.95),
     )
     # TODO: Tweak the hyperparameters to generate a former president.
     # ====== YOUR CODE: ======
-    raise NotImplementedError()
     # ========================
     return hypers
 
