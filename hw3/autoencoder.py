@@ -8,18 +8,20 @@ class EncoderCNN(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
 
-        conv1 = nn.Conv2d(in_channels, in_channels*5, (7, 7), stride=3,
-                          padding=3)
+        conv1 = nn.Conv2d(in_channels, in_channels*5, 5, stride=2,
+                          padding=2)
         relu1 = nn.ReLU()
 
-        conv2 = nn.Conv2d(in_channels*5, in_channels*20, (5, 5), stride=3,
+        conv2 = nn.Conv2d(in_channels*5, in_channels*20, 5, stride=2,
                           padding=2)
         relu2 = nn.ReLU()
 
-        conv3 = nn.Conv2d(in_channels*20, in_channels*80, (5, 5), padding=2)
+        conv3 = nn.Conv2d(in_channels*20, in_channels*80, 5, stride=2,
+                          padding=2)
         relu3 = nn.ReLU()
 
-        conv4 = nn.Conv2d(in_channels*80, out_channels, (3, 3))
+        conv4 = nn.Conv2d(in_channels*80, out_channels, 5, stride=2,
+                          padding=2)
 
         modules = [conv1, relu1, conv2, relu2, conv3, relu3, conv4]
 
@@ -42,18 +44,20 @@ class DecoderCNN(nn.Module):
     def __init__(self, in_channels, out_channels):
         super().__init__()
 
-        conv1 = nn.ConvTranspose2d(in_channels, out_channels*80, (3, 3))
+        conv1 = nn.ConvTranspose2d(in_channels, out_channels*80, 5, stride=2,
+                                   padding=2, output_padding=1)
         relu1 = nn.ReLU()
 
-        conv2 = nn.ConvTranspose2d(out_channels*80, out_channels*20, (5, 5), padding=2)
+        conv2 = nn.ConvTranspose2d(out_channels*80, out_channels*20, 5, stride=2,
+                                   padding=2, output_padding=1)
         relu2 = nn.ReLU()
 
-        conv3 = nn.ConvTranspose2d(out_channels*20, out_channels*5, (5, 5), stride=3,
-                                   padding=2)
+        conv3 = nn.ConvTranspose2d(out_channels*20, out_channels*5, 5, stride=2,
+                                   padding=2, output_padding=1)
         relu3 = nn.ReLU()
 
-        conv4 = nn.ConvTranspose2d(out_channels*5, out_channels, (7, 7), stride=3,
-                                   padding=3)
+        conv4 = nn.ConvTranspose2d(out_channels*5, out_channels, 5, stride=2,
+                                   padding=2, output_padding=1)
 
         modules = [conv1, relu1, conv2, relu2, conv3, relu3, conv4]
 

@@ -72,8 +72,8 @@ PART2_CUSTOM_DATA_URL = None
 def part2_vae_hyperparams():
     hypers = dict(
         batch_size=8,
-        h_dim=1024, z_dim=256, x_sigma2=0.75,
-        learn_rate=1e-5, betas=(0.95, 0.95),
+        h_dim=1024, z_dim=256, x_sigma2=0.5,
+        learn_rate=1e-5, betas=(0.9, 0.9),
     )
     # TODO: Tweak the hyperparameters to generate a former president.
     # ====== YOUR CODE: ======
@@ -83,28 +83,24 @@ def part2_vae_hyperparams():
 
 part2_q1 = r"""
 **Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+The meaning of sigma2 is how far from the center of mass of the latent space representation of our data are we
+willing to use as samples. Those samples will then be decoded in order to generate new data.
+A low sigma2 would sample samples which are too close to each other and to our data set, which might result
+in generation of photos which are almost identical to each other and to our starting data set.
+A high sigma2 might result in samples which are too far from the latent representation of out data, and after
+they are used for generation of new photos we might get some data that does not resemble at all our original data.
 """
 
 part2_q2 = r"""
 **Your answer:**
-
-
-Write your answer using **markdown** and $\LaTeX$:
-```python
-# A code block
-a = 2
-```
-An equation: $e^{i\pi} -1 = 0$
-
+1. Reconstruction loss tries to measure how far from the original given data have we gotten after encoding and 
+    then decoding it. By optimizing it we should get encoders and decoders which mirrors each other.
+    The KL divergence loss tries to measure how far is our latent space distribution from the ideal one. By
+    optimizing it we should get a latent space where all data is located close to each other but is still distinct
+    and separable.
+2.  See 1.
+3.  By making all data close to each other we ensure that when we sample latent space data we would get samples
+    which relate to out original data after the decoding process.
 """
 
 # ==============
